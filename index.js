@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
 const UserModel = mongoose.model("members", userSchema);
 app.use(express.json());
     
-app.get("/get-data",async (req,res)=>{
+app.get("/development/get-data",async (req,res)=>{
     try {
         const result = await UserModel.find();
         res.json(result);
@@ -49,7 +49,7 @@ app.get("/get-data",async (req,res)=>{
 });
 
 /// Post registration api 
-    app.post("/registration", async (req, res) => {       
+    app.post("/development/registration", async (req, res) => {       
         try {
             const {username, password, phone, email, countryCode} = req.body;
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -69,7 +69,7 @@ app.get("/get-data",async (req,res)=>{
       
 
 /// Post login api
-    app.post('/login', async (req, res) => {
+    app.post('/development/login', async (req, res) => {
     const { email, password } = req.body;
     try {
       // Find the user by username
@@ -117,7 +117,7 @@ app.get("/get-data",async (req,res)=>{
       next();
     });
   }
-  app.get("/data",authenticateToken,async (req,res)=>{
+  app.get("/development/data",authenticateToken,async (req,res)=>{
    res.json(req.user);
    const result = await UserModel.find();
    res.json(result);
