@@ -48,6 +48,23 @@ app.get("/development/get-data",async (req,res)=>{
       }
 });
 
+/// Get search api
+app.get("/development/get-search/:username",async(req,res)=>{
+  const username = req.params.username;
+  try {
+      const user = await UserModel.findOne({ username });
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      res.json(user);
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server Error' });
+  }
+
+
+});
+
 /// Post registration api 
     app.post("/development/registration", async (req, res) => {       
         try {
