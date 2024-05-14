@@ -68,14 +68,19 @@ app.get("/development/get-search/:username",async(req,res)=>{
 /// Post registration api 
     app.post("/development/registration", async (req, res) => {       
         try {
+           
             const {username, password, phone, email, countryCode} = req.body;
             const hashedPassword = await bcrypt.hash(password, 10);
             const bodyData =  {username, password:hashedPassword, phone, email, countryCode};
+            const existingUser = await UserModel.findOne({ $or: [{ email }, { phone }] });
+            if (existingUser) {
+             const statusCode = 400;
+              return res.status(400).json({ error: 'User already exists with this email or contact number',statusCode });
+            }
           const result = await UserModel(bodyData);
-
           await result.save();
-          res.status(201).json({result});
-         // res.status(201).json({ message: 'Data saved successful' });
+          const statusCode = 201;
+          res.status(201).json({result,statusCode});
           console.log("All data: "+bodyData);
         } catch (error) {
           console.error('Error inserting data:', error);
@@ -93,16 +98,19 @@ app.get("/development/get-search/:username",async(req,res)=>{
       const user = await UserModel.findOne({ email });
   
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        const statusCode = 400;
+        return res.status(404).json({ error: 'User not found',statusCode });
       }
   
       // Compare the provided password with the hashed password in the database
       const passwordMatch = await bcrypt.compare(password, user.password,(err,result)=>{
         if(err || !result){
-           return res.status(401).json({error: "Invalid email or password"})
+          const statusCode = 401;
+           return res.status(401).json({error: "Invalid email or password",statusCode})
         }
+        const statusCode = 201;
         const token = jsonwebtoken.sign({ userId: user._id }, 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InJlZ2lzdHJhdGlvbjIiLCJwYXNzd29yZCI6IkdoQDEyMzQ1In0.4P6Ym1dwJw5HOpJXjjB1K-qN8DBzkBGWzmw4xZiTnXQ', { expiresIn: '1h' });  
-      res.json({ token });
+      res.status(201).json({ token,statusCode });
       });
   
       // if (!passwordMatch) {
