@@ -98,19 +98,21 @@ app.get("/development/get-search/:username",async(req,res)=>{
       const user = await UserModel.findOne({ email });
   
       if (!user) {
-        const statusCode = 400;
-        return res.status(404).json({ error: 'User not found',statusCode });
+        const statusCode = 404;
+        return res.status(404).json({ message: 'User not found',statusCode });
       }
   
       // Compare the provided password with the hashed password in the database
       const passwordMatch = await bcrypt.compare(password, user.password,(err,result)=>{
-        if(err || !result){
+        if(!result ){
           const statusCode = 401;
-           return res.status(401).json({error: "Invalid email or password",statusCode})
+           return res.status(401).json({message: "Invalid email or password",statusCode})
+        }else{
+          const statusCode = 201;
+          const token = jsonwebtoken.sign({ userId: user._id }, 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InJlZ2lzdHJhdGlvbjIiLCJwYXNzd29yZCI6IkdoQDEyMzQ1In0.4P6Ym1dwJw5HOpJXjjB1K-qN8DBzkBGWzmw4xZiTnXQ', { expiresIn: '5h' });  
+        res.status(201).json({ token,statusCode });
         }
-        const statusCode = 201;
-        const token = jsonwebtoken.sign({ userId: user._id }, 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InJlZ2lzdHJhdGlvbjIiLCJwYXNzd29yZCI6IkdoQDEyMzQ1In0.4P6Ym1dwJw5HOpJXjjB1K-qN8DBzkBGWzmw4xZiTnXQ', { expiresIn: '1h' });  
-      res.status(201).json({ token,statusCode });
+        
       });
   
       // if (!passwordMatch) {
